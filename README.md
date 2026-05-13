@@ -51,7 +51,9 @@ With clean data in hand, the focus shifted to establishing the financial and beh
 
 ### 🔍 Observation 1 — Skewness in Sales Revenue
 
-![Observation 1 — Skewness Analysis](images/observation_1_skewness.png)
+![Observation 1 — Skewness Analysis]
+<img width="900" height="500" alt="observation_1_skewness" src="https://github.com/user-attachments/assets/d1d41e75-6c53-4aeb-8c67-670f31c1d69c" />
+
 
 The mean ($322.26) sits noticeably above the median ($253.39) — a gap of $68.87. This is the classic fingerprint of a **right-skewed distribution**: a small number of exceptionally large purchases pulling the mean upward while most transactions cluster at lower values. With a standard deviation of $245.65, transaction values are highly dispersed.
 
@@ -65,7 +67,9 @@ Four visualizations were built to give management an at-a-glance picture of oper
 
 ### Scatter Plot — Total Bill vs. Quantity
 
-![Scatter Plot: Total Bill vs Quantity](images/scatter_total_bill_vs_quantity.png)
+![Scatter Plot: Total Bill vs Quantity]
+<img width="900" height="500" alt="scatter_total_bill_vs_quantity" src="https://github.com/user-attachments/assets/17e40cb4-0bc7-4f77-9924-16e2d357e657" />
+
 
 A positive linear relationship exists between quantity purchased and total bill (R² = 0.4957). Roughly **49.57%** of the variation in total bill can be explained by quantity alone — a moderate but meaningful correlation. The relationship is real, not random.
 
@@ -73,7 +77,9 @@ A positive linear relationship exists between quantity purchased and total bill 
 
 ### Bar Chart — Revenue by Branch Location
 
-![Bar Chart: Revenue by Location](images/bar_revenue_by_location.png)
+![Bar Chart: Revenue by Location]
+<img width="900" height="500" alt="bar_revenue_by_location" src="https://github.com/user-attachments/assets/e4d6ba3e-02c6-4652-b7e2-8e3bae74c6ad" />
+
 
 All three branches performed within a tight revenue band in Q1 2019:
 
@@ -89,7 +95,9 @@ Giza leads by a slim but consistent margin.
 
 ### Pie Chart — Payment Method Breakdown
 
-![Pie Chart: Payment Type](images/pie_payment_type.png)
+![Pie Chart: Payment Type]
+<img width="900" height="500" alt="pie_payment_type" src="https://github.com/user-attachments/assets/b0d06e8f-d836-4698-bcc3-142674815efa" />
+
 
 Customer payment preferences were nearly evenly split:
 
@@ -103,7 +111,9 @@ The near-parity of all three channels signals a diverse, digitally-engaged custo
 
 ### Histogram — Distribution of Customer Ratings
 
-![Histogram: Customer Rating Distribution](images/histogram_customer_rating.png)
+![Histogram: Customer Rating Distribution]
+<img width="900" height="500" alt="histogram_customer_rating" src="https://github.com/user-attachments/assets/68166cd5-8c68-4095-b308-840e0498af88" />
+
 
 Customer ratings (scale: 4–10) showed a relatively **uniform distribution** across the range, with a slight spike at the [4, 4.5] bin (99 occurrences) and a dip at the upper end ([9.5, 10] = 68). There is no strong concentration of very high ratings — indicating consistent but unremarkable satisfaction across the customer base.
 
@@ -111,7 +121,9 @@ Customer ratings (scale: 4–10) showed a relatively **uniform distribution** ac
 
 ### 🔍 Observation 2 — Ewallet Promotion Strategy
 
-![Observation 2 — Ewallet Recommendation](images/observation_2_ewallet.png)
+![Observation 2 — Ewallet Recommendation]
+<img width="900" height="500" alt="observation_2_ewallet" src="https://github.com/user-attachments/assets/c18f0935-31fd-4680-ac28-890c3800c939" />
+
 
 **Giza should be the primary target for any Ewallet promotion.** It generated the highest total revenue ($107,993), the widest Ewallet transaction spread (SD gap of $97.27), and an estimated Ewallet revenue of ~$37,797 (35% × $107,993) — the highest across all branches. A focused promotion here reinforces existing high-value Ewallet behavior and delivers the greatest revenue impact per dollar of marketing spend.
 
@@ -121,7 +133,9 @@ Customer ratings (scale: 4–10) showed a relatively **uniform distribution** ac
 
 ### Normal Distribution — Sales Revenue
 
-![Probability Distributions](images/probability_distributions.png)
+![Probability Distributions]
+<img width="900" height="500" alt="probability_distributions" src="https://github.com/user-attachments/assets/22fd4fd2-00b6-44f0-a3c9-34b1a7128b84" />
+
 
 Using Mean = $322.26 and SD = $245.65:
 
@@ -183,36 +197,6 @@ Additional probability models were applied to operational scenarios:
 
 ---
 
-## 📁 Repository Structure
-
-```
-supermarket-pulse-q1-2019/
-│
-├── data/
-│   └── Caleb_Chisom_Chike_SuperMarket_Sales_Q1_2019.xlsx
-│
-├── images/
-│   ├── scatter_total_bill_vs_quantity.png
-│   ├── bar_revenue_by_location.png
-│   ├── pie_payment_type.png
-│   ├── histogram_customer_rating.png
-│   ├── probability_distributions.png
-│   ├── observation_1_skewness.png
-│   └── observation_2_ewallet.png
-│
-├── report/
-│   └── The_Capstone_Supermarket_Sales_Operations_Analysis.pdf
-│
-└── README.md
-```
-
----
-
-## 👤 Author
-
-**Caleb Chisom Chike**
-Structural Engineer | Data Analytics Practitioner
-📍 Port Harcourt, Nigeria
 
 *This project was completed as part of an Excel for Data Analysis course capstone, applying statistical and analytical techniques to a real-world retail operations scenario.*
 
