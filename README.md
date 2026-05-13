@@ -51,7 +51,6 @@ With clean data in hand, the focus shifted to establishing the financial and beh
 
 ### 🔍 Observation 1 — Skewness in Sales Revenue
 
-![Observation 1 — Skewness Analysis]
 <img width="900" height="500" alt="observation_1_skewness" src="https://github.com/user-attachments/assets/d1d41e75-6c53-4aeb-8c67-670f31c1d69c" />
 
 
@@ -67,7 +66,6 @@ Four visualizations were built to give management an at-a-glance picture of oper
 
 ### Scatter Plot — Total Bill vs. Quantity
 
-![Scatter Plot: Total Bill vs Quantity]
 <img width="900" height="500" alt="scatter_total_bill_vs_quantity" src="https://github.com/user-attachments/assets/17e40cb4-0bc7-4f77-9924-16e2d357e657" />
 
 
@@ -77,7 +75,6 @@ A positive linear relationship exists between quantity purchased and total bill 
 
 ### Bar Chart — Revenue by Branch Location
 
-![Bar Chart: Revenue by Location]
 <img width="900" height="500" alt="bar_revenue_by_location" src="https://github.com/user-attachments/assets/e4d6ba3e-02c6-4652-b7e2-8e3bae74c6ad" />
 
 
@@ -95,7 +92,6 @@ Giza leads by a slim but consistent margin.
 
 ### Pie Chart — Payment Method Breakdown
 
-![Pie Chart: Payment Type]
 <img width="900" height="500" alt="pie_payment_type" src="https://github.com/user-attachments/assets/b0d06e8f-d836-4698-bcc3-142674815efa" />
 
 
@@ -111,7 +107,6 @@ The near-parity of all three channels signals a diverse, digitally-engaged custo
 
 ### Histogram — Distribution of Customer Ratings
 
-![Histogram: Customer Rating Distribution]
 <img width="900" height="500" alt="histogram_customer_rating" src="https://github.com/user-attachments/assets/68166cd5-8c68-4095-b308-840e0498af88" />
 
 
@@ -121,7 +116,6 @@ Customer ratings (scale: 4–10) showed a relatively **uniform distribution** ac
 
 ### 🔍 Observation 2 — Ewallet Promotion Strategy
 
-![Observation 2 — Ewallet Recommendation]
 <img width="900" height="500" alt="observation_2_ewallet" src="https://github.com/user-attachments/assets/c18f0935-31fd-4680-ac28-890c3800c939" />
 
 
@@ -133,7 +127,6 @@ Customer ratings (scale: 4–10) showed a relatively **uniform distribution** ac
 
 ### Normal Distribution — Sales Revenue
 
-![Probability Distributions]
 <img width="900" height="500" alt="probability_distributions" src="https://github.com/user-attachments/assets/22fd4fd2-00b6-44f0-a3c9-34b1a7128b84" />
 
 
