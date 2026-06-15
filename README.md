@@ -1,12 +1,14 @@
 # 🛒 Supermarket Pulse: A Data-Driven Operations Analysis of Q1 2019
 
-> *Cleaning the noise. Finding the signal. Telling the story behind every transaction — now in Python.*
+> *Cleaning the noise. Finding the signal. Telling the story behind every transaction — now with pandas DataFrames.*
 
 ---
 
 ## 📌 Project Overview
 
-This branch reimplements the **Supermarket Pulse** capstone entirely in Python using **pandas Series** as the core data structure. Where the original project used Excel Power Query and formulas, this version performs every step — data loading, cleaning, statistical computation, probability modeling, and visualization — programmatically inside a Jupyter Notebook.
+This branch reimplements the **Supermarket Pulse** capstone entirely in Python using a **pandas DataFrame** as the unified data structure. Where the original project used Excel Power Query and formulas, this version performs every step — data loading, cleaning, statistical computation, probability modeling, and visualization — programmatically inside a Jupyter Notebook.
+
+Unlike the `supermarket_pulse_using_panda_series` branch (which extracts each column into its own named Series), this implementation keeps all data consolidated in a single working DataFrame — `supermarket` — and accesses columns by name throughout. This reflects how most real-world pandas workflows are structured: one clean table, operated on directly.
 
 The same five analytical stages are preserved: data cleaning, descriptive statistics, probability modeling, visual dashboarding, and hypothesis formulation. Every figure computed has a business question behind it; every chart answers something management actually needs to know.
 
@@ -26,56 +28,60 @@ The same five analytical stages are preserved: data cleaning, descriptive statis
 
 ---
 
-## 🐍 Why Pandas Series?
+## 🐍 Why a Single DataFrame?
 
-Rather than loading the dataset into a single DataFrame and operating on it column-by-column, this implementation extracts each column into its own named **pandas Series** (indexed by `Invoice ID`). This design choice makes every transformation explicit, keeps column operations self-contained, and mirrors how an analyst would reason about one variable at a time.
+Rather than splitting columns into standalone Series objects, this branch loads the dataset into `supermarket_raw`, immediately copies it into a working DataFrame named `supermarket`, and operates on columns using bracket notation throughout:
 
 ```python
-sales    = pd.Series(supermarket_raw["Sales"],    index=supermarket_raw.index, name="Sales")
-rating   = pd.Series(supermarket_raw["Rating"],   index=supermarket_raw.index, name="Rating")
-payment  = pd.Series(supermarket_raw["Payment"],  index=supermarket_raw.index, name="Payment")
-# ...and so on for all 15 columns
+supermarket_raw = pd.read_csv("...", index_col="Invoice ID")
+supermarket = supermarket_raw.copy()
 ```
+
+Working from a copy preserves the raw data as an unmodified reference — a clean separation between source and analysis that mirrors production data pipelines. All cleaning, transformations, and computations operate on `supermarket`, never on `supermarket_raw`.
 
 ---
 
-## 🔧 Part 1 — Data Cleaning (pandas Series Operations)
+## 🔧 Part 1 — Data Cleaning (In-Place DataFrame Operations)
 
 The raw dataset arrived with the same structural issues as the original — addressed here programmatically rather than through Power Query.
 
 ### Split Column
-`City_CustType` was a merged column. Split using the `|` delimiter via `.str.split()`:
+`City_CustType` was a merged column containing two distinct attributes. Split using the `|` delimiter and inserted as two new columns, then the original was dropped — all in one block:
 
 ```python
-city          = city_custtype.str.split("|").str[0]
-customer_type = city_custtype.str.split("|").str[1]
+if 'City_CustType' in supermarket.columns:
+    city_custtype = supermarket["City_CustType"]
+    supermarket['City']          = city_custtype.str.split("|").str[0]
+    supermarket['Customer Type'] = city_custtype.str.split("|").str[1]
+    supermarket = supermarket.drop(columns=['City_CustType'])
 ```
 
+The guard clause (`if 'City_CustType' in supermarket.columns`) makes the cell idempotent — safe to re-run without error.
+
 ### Text Standardization
-`Product line` had inconsistent capitalization. Normalized using `.str.strip().str.title()`:
+`Product line` had inconsistent capitalization. Normalized in place using `.str.strip().str.title()`:
 
 ```python
-product_line = product_line.str.strip().str.title()
+supermarket['Product line'] = supermarket['Product line'].str.strip().str.title()
 ```
 
 ### Null Handling
-Transactions with blank `Rating` values were identified via a list comprehension and dropped from **all** Series simultaneously to preserve index alignment:
+Rows with blank `Rating` values were dropped in a single operation using `dropna(subset=...)` — no manual index tracking required:
 
 ```python
-null_rating = [x for x in rating.index if pd.isnull(rating[x])]
-rating = rating.drop(null_rating)
-sales  = sales.drop(null_rating)
-# ...applied across all 16 Series
+supermarket = supermarket.dropna(subset=['Rating'])
 ```
 
+The shape of both `supermarket_raw` and the cleaned `supermarket` were displayed side by side to confirm the drop count.
+
 ### Data Types
-`unit_price`, `quantity`, and `sales` were verified as `float64`, `int64`, and `float64` respectively using `.dtype`.
+Column types were verified using `supermarket.info()`, which prints dtypes and non-null counts for all columns simultaneously — a more efficient diagnostic than checking each column individually.
 
 ---
 
 ## 📊 Part 2 — Baseline Metrics & Statistical Summary
 
-With clean Series in hand, descriptive statistics were computed directly from pandas built-in methods.
+Descriptive statistics were computed directly from DataFrame column accessors.
 
 | Metric | Value |
 |---|---|
@@ -83,12 +89,12 @@ With clean Series in hand, descriptive statistics were computed directly from pa
 | **Median Total Sales** | $253.39 |
 | **Rating Variance** | ~2.95 |
 | **Rating Std Dev** | ~1.72 |
-| **Margin of Error (95% CI, n=60)** | Calculated via `1.96 × sales.sample(60).sem()` |
+| **Margin of Error (95% CI, n=60)** | Calculated via `1.96 × supermarket['Sales'].sample(60).sem()` |
 
 ```python
-print(f"The Mean of the Total Sales is: {sales.mean()}")
-print(f"The Median of the Total Sales is: {sales.median()}")
-print(f"The Mode of the Total Sales are: {sales.mode().to_list()}")
+print(f"The Mean of the Total Sales is: {supermarket['Sales'].mean()}")
+print(f"The Median of the Total Sales is: {supermarket['Sales'].median()}")
+print(f"The Mode of the Total Sales are: {supermarket['Sales'].mode().to_list()}")
 ```
 
 ### 🔍 Observation 1 — Skewness in Sales Revenue
@@ -101,14 +107,17 @@ The mean ($322.26) sits noticeably above the median ($253.39) — a gap of ~$68.
 
 ## 📈 Part 3 — Visual Dashboard (matplotlib)
 
-Four charts were built using `matplotlib.pyplot`, each derived directly from the cleaned Series.
+Four charts were built using `matplotlib.pyplot`, each sourced directly from DataFrame columns via bracket notation.
 
 ### Scatter Plot — Quantity vs. Total Sales
 
 ```python
-z = np.polyfit(quantity, sales, 1)
+X = supermarket['Quantity']
+Y = supermarket['Sales']
+
+z = np.polyfit(X, Y, 1)
 p = np.poly1d(z)
-ax.plot(quantity, p(quantity), color='red', linestyle='--', label='Linear Trendline')
+ax.plot(X, p(X), color='red', linestyle='--', label='Linear Trendline')
 ```
 
 A positive linear relationship exists between quantity purchased and total sales (R² ≈ 0.4957). Roughly 49.57% of the variation in total sales is explained by quantity alone — a moderate but meaningful correlation.
@@ -118,7 +127,7 @@ A positive linear relationship exists between quantity purchased and total sales
 ### Bar Chart — Revenue by Branch Location
 
 ```python
-Z = sales.groupby(branch).sum()
+Z = supermarket['Sales'].groupby(supermarket['Branch']).sum()
 ```
 
 | Branch | Total Revenue |
@@ -127,15 +136,15 @@ Z = sales.groupby(branch).sum()
 | Cairo (B) | $102,875 |
 | **Giza (C)** | **$107,993** |
 
-Giza leads by a slim but consistent margin. Bar values were annotated directly on each bar using `ax.text()`.
+Giza leads by a slim but consistent margin. Revenue values were annotated directly above each bar using `ax.text()`.
 
 ---
 
 ### Pie Chart — Payment Method Breakdown
 
 ```python
-Z = payment.value_counts()
-ax.pie(Z, labels=Z.index, autopct='%1.1f%%')
+Z = supermarket['Payment'].value_counts()
+ax.pie(Z, labels=Z.index, autopct='%1.1f%%', textprops={'color': 'white'})
 ```
 
 Customer payment preferences were nearly evenly split:
@@ -151,7 +160,7 @@ The near-parity of all three channels signals a diverse, digitally-engaged custo
 ### Histogram — Distribution of Customer Ratings
 
 ```python
-hist = ax.hist(rating, bins=12, edgecolor='black')
+hist = ax.hist(supermarket['Rating'], bins=12, edgecolor='black')
 ```
 
 Customer ratings (scale: 4–10) showed a relatively **uniform distribution**, with frequency counts annotated above each bin. No strong concentration of very high ratings — indicating consistent but unremarkable satisfaction across the customer base.
@@ -166,7 +175,7 @@ Customer ratings (scale: 4–10) showed a relatively **uniform distribution**, w
 
 ## 🎲 Part 4 — Probability Modeling (scipy.stats)
 
-All distributions were computed using `scipy.stats` modules imported at runtime.
+All distributions were computed using `scipy.stats` modules, with parameters derived live from the `supermarket` DataFrame.
 
 ```python
 from scipy.stats import norm, binom, poisson, expon, randint
@@ -174,11 +183,9 @@ from scipy.stats import norm, binom, poisson, expon, randint
 
 ### Normal Distribution — Sales Revenue
 
-Parameters derived live from the cleaned `sales` Series:
-
 ```python
-mean_sales = sales.mean()
-std_sales  = sales.std()
+mean_sales = supermarket['Sales'].mean()
+std_sales  = supermarket['Sales'].std()
 ```
 
 | Scenario | Probability |
@@ -192,10 +199,11 @@ std_sales  = sales.std()
 
 ### Binomial Distribution — Credit Card Usage
 
-The baseline credit card probability was computed directly from the `payment` Series:
+The baseline credit card probability was computed from the `Payment` column:
 
 ```python
-p_success_credit_card = payment.value_counts(normalize=True)['Credit card']
+payment_probabilities   = supermarket['Payment'].value_counts(normalize=True)
+p_success_credit_card   = payment_probabilities['Credit card']
 ```
 
 | Scenario | Probability |
@@ -209,42 +217,57 @@ Both outcomes represent statistical edge cases — reinforcing that credit card 
 
 ### Poisson Distribution — Foot Traffic
 
-Average daily transaction rate derived from the `date` Series:
+Average daily transaction rate derived from the `Date` column:
 
 ```python
-date_datetime = pd.to_datetime(date, format='%m/%d/%Y')
+date_datetime          = pd.to_datetime(supermarket['Date'], format='%m/%d/%Y')
 avg_daily_transactions = date_datetime.value_counts().mean()
 ```
 
 | Scenario | Probability |
 |---|---|
 | Exactly 85 transactions tomorrow | Computed via `poisson.pmf(85, λ)` |
-| Exactly 120 transactions tomorrow | Very low — not a credible baseline |
+| Exactly 120 transactions tomorrow | Very low — not a credible staffing baseline |
 
-Extreme outlier volumes (e.g., 120/day) carry very low probability and should not drive staffing decisions.
+Extreme outlier volumes (e.g., 120/day) carry very low probability and should not drive shift scheduling decisions.
 
 ---
 
 ### Exponential Distribution — Equipment Failure
 
 ```python
-prob_jam_within_20 = expon.cdf(20, scale=45)   # ~36%
-prob_smooth_60_min = 1 - expon.cdf(60, scale=45)
+prob_jam_within_20  = expon.cdf(20, scale=45)      # ~36%
+prob_smooth_60_min  = 1 - expon.cdf(60, scale=45)
 ```
 
-With printer jams averaging every 45 minutes, a jam within 20 minutes has a non-trivial probability (~36%). Preventive maintenance windows should account for this.
+With printer jams averaging every 45 minutes, a jam within 20 minutes carries a non-trivial probability (~36%). Preventive maintenance windows should account for this.
 
 ---
 
 ### Uniform Distribution — Voucher Draw
 
 ```python
-uniform_probability = randint.pmf(142, 1, 301)  # = 1/300
+uniform_probability = randint.pmf(142, 1, 301)   # = 1/300 ≈ 0.33%
 ```
 
-Each of 300 receipts carries an equal 1/300 probability (~0.33%) of winning. No receipt number has any statistical advantage.
+Each of 300 receipts carries an equal 1/300 probability of winning. No receipt number holds any statistical advantage.
 
 ---
+
+---
+
+## 🔄 DataFrame vs. Series Branch — Key Differences
+
+| Aspect | Series Branch | **This Branch (DataFrame)** |
+|---|---|---|
+| Data structure | 15 standalone `pd.Series` objects | One unified `supermarket` DataFrame |
+| Column access | `sales.mean()` | `supermarket['Sales'].mean()` |
+| Null dropping | `.drop(null_rating)` on every Series | `supermarket.dropna(subset=['Rating'])` |
+| Column splitting | New Series assigned by name | New columns inserted into DataFrame; original dropped |
+| Type inspection | `.dtype` per Series | `supermarket.info()` for all columns at once |
+| Groupby syntax | `sales.groupby(branch).sum()` | `supermarket['Sales'].groupby(supermarket['Branch']).sum()` |
+
+Both branches produce identical analytical results. The DataFrame approach is more concise for multi-column operations and closer to standard production pandas practice.
 
 ---
 
@@ -253,8 +276,9 @@ Each of 300 receipts carries an equal 1/300 probability (~0.33%) of winning. No 
 | Category | Tool / Method |
 |---|---|
 | Data Loading | `pd.read_csv()` via GitHub raw URL |
-| Series Construction | `pd.Series()` with `Invoice ID` as index |
-| Data Cleaning | `.str.split()`, `.str.strip().str.title()`, `.drop()` |
+| Working Copy | `supermarket_raw.copy()` |
+| Data Cleaning | `.str.split()`, `.str.strip().str.title()`, `.dropna()`, `.drop(columns=[])` |
+| Type Inspection | `supermarket.info()` |
 | Descriptive Statistics | `.mean()`, `.median()`, `.mode()`, `.var()`, `.std()`, `.sem()` |
 | Probability Modeling | `scipy.stats` — `norm`, `binom`, `poisson`, `expon`, `randint` |
 | Visualizations | `matplotlib.pyplot` — Scatter, Bar, Pie, Histogram |
@@ -263,7 +287,9 @@ Each of 300 receipts carries an equal 1/300 probability (~0.33%) of winning. No 
 ---
 
 
-*This branch extends the original Excel capstone by reproducing every analytical step in Python, demonstrating that the same business insights can be derived programmatically — with greater reproducibility, transparency, and scalability.*
+---
+
+*This branch extends the original Excel capstone by reproducing every analytical step in Python using a unified DataFrame workflow — demonstrating that the same business insights can be derived programmatically with greater reproducibility, transparency, and scalability.*
 
 ---
 
